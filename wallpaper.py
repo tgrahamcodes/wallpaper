@@ -1,3 +1,6 @@
+# !/usr/bin/python3
+from tkinter import *
+from tkinter import messagebox
 import ctypes
 import requests
 import shutil
@@ -7,7 +10,24 @@ import webbrowser
 import praw
 import random
 
+
 list = []
+
+
+def test():
+    print("test")
+
+
+def draw():
+    top = Tk()
+    top.geometry("100x100")
+
+    list = crawl()
+    doRequest(list[0])
+
+    B = Button(top, text="set", command=test)
+    B.place(x=50, y=50)
+    top.mainloop()
 
 
 def changeBg(PATH):
@@ -17,7 +37,10 @@ def changeBg(PATH):
 
 def doRequest(URL):
     r = requests.get(URL, stream=True)
-    filename = "C:\\Users\\iamto\\Pictures\\Wallpaper\\" + URL
+    URL = URL.strip('.')
+    print(URL)
+    filename = "C:\\Users\\iamto\\Pictures\\Wallpaper\\" + "background.png"
+    print(filename)
     with open(filename, 'wb') as out_file:
         shutil.copyfileobj(r.raw, out_file)
     del r
@@ -56,10 +79,8 @@ def crawl():
    # changeBg(PATH)
 
 
-def download(list):
-    for url in list:
-        print(url)
-        doRequest(url)
+def details(list):
+    print("Length: " + len(list))
 
 
 def site(list):
@@ -90,6 +111,5 @@ def site(list):
     webbrowser.open_new_tab('page.html')
 
 
-list = crawl()
-site(list)
-download(list)
+# site(list)
+draw()
