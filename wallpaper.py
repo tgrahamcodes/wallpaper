@@ -19,31 +19,41 @@ def test():
 
 
 def draw():
-    top = Tk()
-    top.geometry("100x100")
+    # creating main tkinter window/toplevel
+    master = Tk()
 
     list = crawl()
     doRequest(list[0])
 
-    B = Button(top, text="set", command=test)
-    B.place(x=50, y=50)
-    top.mainloop()
+    # adding image (remember image should be PNG and not JPG)
+    img = PhotoImage(file=r"C:\Users\iamto\Desktop\test.png")
+    img1 = img.subsample(2, 2)
+
+    # setting image with the help of label
+    Label(master, image=img1).grid(row=0, column=2,
+                                   columnspan=2, rowspan=2, padx=5, pady=5)
+
+    button = Button(master, text='Stop', width=25, command=master.destroy)
+    button.place(x=50, y=50)
+
+
+    # infinite loop which can be terminated
+    # by keyboard or mouse interrupt
+    master.mainloop()
 
 
 def changeBg(PATH):
     ctypes.windll.user32.SystemParametersInfoW(
         20, 0, PATH, 3)
 
-
 def doRequest(URL):
     r = requests.get(URL, stream=True)
     URL = URL.strip('.')
-    print(URL)
     filename = "C:\\Users\\iamto\\Pictures\\Wallpaper\\" + "background.png"
-    print(filename)
     with open(filename, 'wb') as out_file:
         shutil.copyfileobj(r.raw, out_file)
     del r
+
 
 
 def crawl():
@@ -112,4 +122,7 @@ def site(list):
 
 
 # site(list)
-draw()
+
+list = crawl()
+doRequest(list[0])
+site(list)
