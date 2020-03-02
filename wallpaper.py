@@ -108,9 +108,9 @@ def draw():
 # do function calls, save the crawl function response to a list and then pass it to site to generate the
 # fresh html version of the top of top wallpapers
 list = crawl()
-# site(list)
+site(list)
 # change()
-draw()
+# draw()
 
 #TODO
 # wallpaper needs to be converted to png to be shown
