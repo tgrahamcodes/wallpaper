@@ -1,28 +1,29 @@
-# !/usr/bin/python3
-from tkinter import *
-# from tkinter import messagebox
+#!/opt/homebrew/bin/python3
+# from tkinter import *
 import ctypes
 import requests
-import shutil
 import webbrowser
 import praw
-import re
 from urllib.parse import urlparse
+import tqdm as t
+import time
+import os
 
 list = []
 
-# A function that sets the wallpaper of the current system.
-def changeBg(PATH):
+# A function that sets the wallpaper of the current system if using Windows.
+def change_background(PATH):
     ctypes.windll.user32.SystemParametersInfoW(
         20, 0, PATH, 3)
 
 # A function used to make a request to download the image and save it.
-def doRequest(URL):
+def do_request(URL):
     r = requests.get(URL, stream=True)
     filename = urlparse(URL)
     fn = str(filename.path).split('/')
+   # check = range(fn) + 1
     if (fn != None):
-        path = "C:\\Users\\iamto\\Pictures\\Wallpaper\\" + fn[1]
+        path = str(fn[1])
         end = str(fn[1]).split('.')[1]
     if (end == "jpg"):
         file = open(path, "wb")
@@ -30,10 +31,13 @@ def doRequest(URL):
         file.close()
 
 # A function to crawl reddit for the top 20 wallpapers from each of the listed subreddits.
-def crawl():
-    reddit = praw.Reddit(client_id='7-4B300Ip7f-iw',
-                         client_secret='rR8THfrDUqKQ8qval9YycTLaQkw',
-                         user_agent='crawlbot')
+def crawl_reddit():
+    CLIENT_ID = os.environ.get("CLIENT_ID")
+    CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+    USER_AGENT = os.environ.get("USER_AGENT")
+    reddit = praw.Reddit(client_id=CLIENT_ID,
+                         client_secret=CLIENT_SECRET,
+                         user_agent=USER_AGENT)
 
     for submission in reddit.subreddit('wallpaper').hot(limit=20):
         list.append(submission.url)
@@ -49,13 +53,12 @@ def crawl():
 
     return list
 
-def siteDetails(list):
+def html_details(list):
     for url in list:
-        doRequest(url)
-
+        do_request(url)
 
 # A function to recreate the top wallpaper list as a website.
-def site(list):
+def create_html(list):
     f = open('page.html', 'wb')
 
     message = """<center>
@@ -90,23 +93,26 @@ def site(list):
 
     webbrowser.open_new_tab('page.html')
 
+# TODO
 # A function to actually change the wallpaper.
 def change():
     num = input("enter number:")
     if (int(num) < 10):
-        file = doRequest(list[int(num)])
-        changeBg(file)
+        file = do_request(list[int(num)])
+        change_background(file)
     else:
         print("error")
         change()
 
+#TODO
 # The beginning of a gui implementation for the wallpaper program.
-def draw():
+def draw_window():
     master = Tk()
 
-    list = crawl()
-    doRequest(list[0])
+    list = crawl_reddit()
+    do_request(list[0])
 
+    # Change to non hardcoded path.
     img = PhotoImage(file=r"C:\Users\iamto\Pictures\.png")
     img1 = img.subsample(4, 4)
     img2 = PhotoImage(file=r"C:\Users\iamto\Pictures\*.png")
@@ -128,15 +134,19 @@ def draw():
 
     master.mainloop()
 
-
-# do function calls, save the crawl function response to a list and then pass it to site to generate the
-# fresh html version of the top of top wallpapers
-list = crawl()
-#site(list)
-siteDetails(list)
-# change()
-# draw()
-
 #TODO
-# wallpaper needs to be converted to png to be shown
-# need to fix this or figure out another way
+# - Fix prgress bar
+# - Tie progress bar completion time to function
+# Progress bar function
+def progress_bar():
+    for i in t.tqdm(range (100), 
+        desc="Loading...",
+        ascii=False, 
+        ncols=75):
+            time.sleep(0.01)
+
+# driver function for the program
+if __name__ == "__main__":
+    progress_bar()
+    list = crawl_reddit()
+    html_details(list)
